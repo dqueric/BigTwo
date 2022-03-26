@@ -4,11 +4,14 @@ from itertools import combinations
 
 class Hand:
     def __init__(self, hand):
+        # sorts the hand into card value order
         self.hand = sorted(hand, key = cmp_to_key(compare_card))
+        # dictionary of (score, play) for a given number of cards in the play
         self.plays = {1: [], 2: [], 3: [], 4: [], 5: []}
+
+        # dictionary of card organised into rank and suit
         rank_dict = {}
         suit_dict = {}
-
         for card in self.hand:
             if RANK_VALUE[card.rank] not in rank_dict:
                 rank_dict[RANK_VALUE[card.rank]] = []
@@ -17,9 +20,11 @@ class Hand:
             rank_dict[RANK_VALUE[card.rank]].append(card)
             suit_dict[card.suit].append(card)
 
+        # singles
         for play in self.hand:
             self.plays[1].append(tuple([play.card_value, tuple([play])]))
 
+        # doubles, triples, quadruples
         for rank in rank_dict:
             plays_2 = combinations(rank_dict[rank], 2)
             plays_3 = combinations(rank_dict[rank], 3)
@@ -56,7 +61,7 @@ class Hand:
                                         self.plays[5].append((card_5.card_value+60*4, (card_1, card_2, card_3, card_4, card_5)))
                                     else:
                                         self.plays[5].append((card_5.card_value, (card_1, card_2, card_3, card_4, card_5)))
-        self.plays[5] = []
+
         # flush, no straight flush
         for suit in suit_dict:
             plays_flush = combinations(suit_dict[suit], 5)
@@ -76,3 +81,7 @@ class Hand:
                 if quadruple_play[1][0].rank != single_play[1][0].rank:
                     self.plays[5].append((quadruple_play[1][3].card_value+60*3, tuple(list(quadruple_play[1]) + list(single_play[1]))))
         self.plays[5] = sorted(self.plays[5])
+
+    def play_card(self, card):
+        # removes card from hand, also removes available plays that have the card
+        pass
