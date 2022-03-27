@@ -5,7 +5,8 @@ for i in range(3, 11):
 RANK_VALUE["J"] = 11
 RANK_VALUE["Q"] = 12
 RANK_VALUE["K"] = 13
-RANK_VALUE["2"] = 14
+RANK_VALUE["A"] = 14
+RANK_VALUE["2"] = 15
 
 class Card:
     def __init__(self, suit :str, rank :str):

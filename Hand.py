@@ -58,7 +58,7 @@ class Hand:
                             for card_4 in rank_dict[hand_ranks[i-1]]: 
                                 for card_5 in rank_dict[hand_ranks[i]]:
                                     if card_1.suit == card_2.suit and card_2.suit == card_3.suit and card_3.suit == card_4.suit and card_4.suit == card_5.suit:
-                                        self.plays[5].append((card_5.card_value+60*4, (card_1, card_2, card_3, card_4, card_5)))
+                                        self.plays[5].append((card_5.card_value+64*4, (card_1, card_2, card_3, card_4, card_5)))
                                     else:
                                         self.plays[5].append((card_5.card_value, (card_1, card_2, card_3, card_4, card_5)))
 
@@ -67,21 +67,32 @@ class Hand:
             plays_flush = combinations(suit_dict[suit], 5)
             for play in plays_flush:
                 if RANK_VALUE[play[4].rank] - RANK_VALUE[play[0].rank] != 4 :
-                    self.plays[5].append((play[4].card_value+60, play))
+                    self.plays[5].append((play[4].card_value+64, play))
 
         # full house
         for triple_play in self.plays[3]:
             for double_play in self.plays[2]:
                 if triple_play[1][0].rank != double_play[1][0].rank:
-                    self.plays[5].append((triple_play[1][2].card_value+60*2, tuple(list(triple_play[1]) + list(double_play[1]))))
+                    self.plays[5].append((triple_play[1][2].card_value+64*2, tuple(list(triple_play[1]) + list(double_play[1]))))
 
         # four of a kind + 1
         for quadruple_play in self.plays[4]:
             for single_play in self.plays[1]:
                 if quadruple_play[1][0].rank != single_play[1][0].rank:
-                    self.plays[5].append((quadruple_play[1][3].card_value+60*3, tuple(list(quadruple_play[1]) + list(single_play[1]))))
-        self.plays[5] = sorted(self.plays[5])
+                    self.plays[5].append((quadruple_play[1][3].card_value+64*3, tuple(list(quadruple_play[1]) + list(single_play[1]))))
+        self.plays[5] = sorted(self.plays[5], key=lambda x: x[0])
 
     def play_card(self, card):
         # removes card from hand, also removes available plays that have the card
-        pass
+        self.hand.remove(card)
+        remove_plays = []
+        for play_type in self.plays:
+            for play in self.plays[play_type]:
+                for c in play[1]:
+                    if c.card_value == card.card_value:
+                        remove_plays.append((play_type, play))
+                        break
+                    elif c.card_value > card.card_value:
+                        break
+        for play in remove_plays:
+            self.plays[play[0]].remove(play[1])
