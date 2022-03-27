@@ -1,10 +1,15 @@
-from re import L
 from Deck import Deck
-from Player import Player
-from SmallPlayer import SmallPlayer
-from BigPlayer import BigPlayer
+from Players.Player import Player
+from Players.SmallPlayer import SmallPlayer
+from Players.BigPlayer import BigPlayer
+from Players.RandomPlayer import RandomPlayer
+from Players.HumanPlayer import HumanPlayer
 from Hand import Hand
 from GameState import GameState
+
+# Known bugs
+# - No automatic passing
+# - Flush ranking, needs to be ordered by suit
 
 class Game:
     def __init__(self, player_list):
@@ -24,10 +29,9 @@ class Game:
         deck = Deck()
         self.played_cards = []
         self.hand_list = []
-        print("START GAME")
+        self.log = ""
         for i in range(len(self.player_list)):
             self.hand_list.append(Hand(deck.deck[i*13:(i+1)*13]))
-            print("PLAYER " + str(i) + ": " + str([i.rank + i.suit for i in self.hand_list[i].hand]), len(self.hand_list[i].hand))
         for i in range(len(self.hand_list)):
             if self.hand_list[i].hand[0].card_value == 12:
                 self.curr_turn = i
@@ -40,13 +44,13 @@ class Game:
         self.last_play = None
 
         while not self.game_over():
-            gamestate = GameState(self.hand_list[self.curr_turn], self.last_play, self.pass_dict, self.hand_dict, self.played_cards, self.won_dict, self.curr_turn)
+            gamestate = GameState(self.hand_list[self.curr_turn], self.last_play, self.pass_dict, self.hand_dict, self.played_cards, self.won_dict, self.curr_turn, self.log)
             action = self.player_list[self.curr_turn].action(gamestate)
             if action == "PASS":
                 self.pass_dict[self.curr_turn] = True
-                print("PLAYER " + str(self.curr_turn) + ": " + "Passed")
+                self.log += "PLAYER " + str(self.curr_turn) + ": " + "Passed\n"
             else:
-                print("PLAYER " + str(self.curr_turn) + ": " + str((action[0], [i.rank + i.suit for i in action[1]])))
+                self.log += "PLAYER " + str(self.curr_turn) + ": " + str((action[0], [i.rank + i.suit for i in action[1]])) + "\n"
                 self.last_play = action
                 self.hand_dict[self.curr_turn] -= len(action[1])
                 self.played_cards += list(action[1])
@@ -54,26 +58,25 @@ class Game:
                     self.hand_list[self.curr_turn].play_card(card)
                 if self.hand_dict[self.curr_turn] == 0:
                     self.won_dict[self.curr_turn] = self.placement
-                    print("PLAYER " + str(self.curr_turn) + " Placement: " + str(self.placement))
+                    self.log += "PLAYER " + str(self.curr_turn) + " Placement: " + str(self.placement) + "\n"
                     self.placement += 1
                     if self.placement == 4:
                         for i in range(4):
                             if self.won_dict[i] is None:
                                 self.won_dict[i] = 4
-                                print("PLAYER " + str(i) + " Placement: " + str(self.placement))
+                                self.log += "PLAYER " + str(i) + " Placement: " + str(self.placement) + "\n"
                                 break
             for i in range(0, 4):
                 self.curr_turn = (self.curr_turn + 1) % 4
                 if i == 3:
                     self.pass_dict = [False, False, False, False]
                     self.last_play = None
-                    print("RESET")
+                    self.log += "RESET\n"
                 if (self.won_dict[self.curr_turn] is None and self.pass_dict[self.curr_turn] is False):
                     break
-        print(self.won_dict)
         return(self.won_dict)
 
 if __name__ == '__main__':
-    player_list = [BigPlayer() for i in range(2)] + [SmallPlayer() for i in range(2)] 
+    player_list = [HumanPlayer()] + [RandomPlayer() for i in range(3)]
     game = Game(player_list)
     game.play_game()

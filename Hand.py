@@ -92,7 +92,5 @@ class Hand:
                     if c.card_value == card.card_value:
                         remove_plays.append((play_type, play))
                         break
-                    elif c.card_value > card.card_value:
-                        break
         for play in remove_plays:
             self.plays[play[0]].remove(play[1])
