@@ -1,6 +1,8 @@
 from re import L
 from Deck import Deck
 from Player import Player
+from SmallPlayer import SmallPlayer
+from BigPlayer import BigPlayer
 from Hand import Hand
 from GameState import GameState
 
@@ -72,6 +74,6 @@ class Game:
         return(self.won_dict)
 
 if __name__ == '__main__':
-    player_list = [Player() for i in range(4)]
+    player_list = [BigPlayer() for i in range(2)] + [SmallPlayer() for i in range(2)] 
     game = Game(player_list)
     game.play_game()
