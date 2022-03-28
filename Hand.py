@@ -35,7 +35,7 @@ class Hand:
                 self.plays[3].append((play[-1].card_value, play))
             for play in plays_4:
                 self.plays[4].append((play[-1].card_value, play))
-        
+
         # straight and straight flush
         continuous = None
         prev = None

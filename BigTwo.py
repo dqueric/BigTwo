@@ -4,6 +4,7 @@ from Players.SmallPlayer import SmallPlayer
 from Players.BigPlayer import BigPlayer
 from Players.RandomPlayer import RandomPlayer
 from Players.HumanPlayer import HumanPlayer
+from Players.MontePlayer import MontePlayer
 from Hand import Hand
 from GameState import GameState
 
@@ -30,6 +31,7 @@ class Game:
 
     def play_game(self):
         deck = Deck()
+        deck.shuffle()
         self.played_cards = []
         self.hand_list = []
         self.log = ""
@@ -83,6 +85,6 @@ class Game:
         return(self.won_dict)
 
 if __name__ == '__main__':
-    player_list = [HumanPlayer()] + [RandomPlayer() for i in range(3)]
+    player_list = [MontePlayer()] + [RandomPlayer() for i in range(3)]
     game = Game(player_list)
     game.play_game()
