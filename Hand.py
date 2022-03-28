@@ -1,4 +1,4 @@
-from Card import compare_card, RANK_VALUE
+from Card import compare_card, RANK_VALUE, SUIT_VALUE
 from functools import cmp_to_key
 from itertools import combinations
 
@@ -67,7 +67,7 @@ class Hand:
             plays_flush = combinations(suit_dict[suit], 5)
             for play in plays_flush:
                 if RANK_VALUE[play[4].rank] - RANK_VALUE[play[0].rank] != 4 :
-                    self.plays[5].append((play[4].card_value+64, play))
+                    self.plays[5].append((RANK_VALUE[play[4].rank]+SUIT_VALUE[play[4].suit]*16+64, play))
 
         # full house
         for triple_play in self.plays[3]:

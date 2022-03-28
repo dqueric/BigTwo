@@ -7,9 +7,6 @@ from Players.HumanPlayer import HumanPlayer
 from Hand import Hand
 from GameState import GameState
 
-# Known bugs
-# - No automatic passing
-# - Flush ranking, needs to be ordered by suit
 
 class Game:
     def __init__(self, player_list):
@@ -19,11 +16,17 @@ class Game:
         return(sum([i is not None for i in self.won_dict]) == 4)
 
     def pass_reset_check(self):
-        count = 0
+        pass_count = 0
+        total_count = 0
+        in_player = None
         for i in range(len(self.won_dict)):
-            if self.won_dict[i] is None and self.pass_dict[i] is False:
-                count += 1
-        return(count == 1)
+            if self.won_dict[i] is None:
+                total_count += 1
+                if self.pass_dict[i] is True:
+                    pass_count += 1
+                else:
+                    in_player = i
+        return(total_count - pass_count == 1, in_player)
 
     def play_game(self):
         deck = Deck()
@@ -68,10 +71,13 @@ class Game:
                                 break
             for i in range(0, 4):
                 self.curr_turn = (self.curr_turn + 1) % 4
-                if i == 3:
+                reset_check = self.pass_reset_check()
+                if reset_check[0]:
                     self.pass_dict = [False, False, False, False]
                     self.last_play = None
                     self.log += "RESET\n"
+                    self.curr_turn = reset_check[1]
+                    break
                 if (self.won_dict[self.curr_turn] is None and self.pass_dict[self.curr_turn] is False):
                     break
         return(self.won_dict)
