@@ -82,6 +82,7 @@ class Game:
                     break
                 if (self.won_dict[self.curr_turn] is None and self.pass_dict[self.curr_turn] is False):
                     break
+        # print(self.log)
         return(self.won_dict)
 
 if __name__ == '__main__':

@@ -3,6 +3,8 @@ from Players.RandomPlayer import RandomPlayer
 from GameState import GameState
 import numpy as np
 from Deck import Deck
+from Hand import Hand
+from Card import Card
 
 def game_over(won_dict):
     return(sum([i is not None for i in won_dict]) == 4)
@@ -27,20 +29,19 @@ class MontePlayer(Player):
     def action(self, gamestate):
         possible_actions = self.action_list(gamestate)
         action_score = []
-        for action in possible_actions:
+        for action_index in range(len(possible_actions)):
             action_score.append(0)
             for sample in range(100):
-                action_score[-1] += self.simulate(gamestate, action)
-        
-        return(possible_actions[np.argmax(action_score)])
+                action_score[-1] += self.simulate(gamestate, action_index)
+        return(possible_actions[np.argmin(action_score)])
 
-    def simulate(self, gamestate, action):
+    def simulate(self, gamestate, action_index):
         orig_player = gamestate.curr_turn
         last_play = gamestate.last_play
-        pass_dict = gamestate.pass_dict
-        hand_dict = gamestate.hand_dict
-        played_cards = gamestate.played_cards
-        won_dict = gamestate.won_dict
+        pass_dict = gamestate.pass_dict.copy()
+        hand_dict = gamestate.hand_dict.copy()
+        played_cards = gamestate.played_cards.copy()
+        won_dict = gamestate.won_dict.copy()
         curr_turn = gamestate.curr_turn
         player_list = [RandomPlayer() for i in range(4)]
         log = gamestate.log
@@ -52,17 +53,19 @@ class MontePlayer(Player):
         hand_list = []
         for i in range(len(hand_dict)):
             if i == curr_turn:
-                hand_list.append(gamestate.hand)
+                hand = Hand([Card(card.suit, card.rank) for card in gamestate.hand.hand])
+                hand_list.append(hand)
             else:
-                hand_list.append(deck.deck[:hand_dict[i]])
+                hand_list.append(Hand(deck.deck[:hand_dict[i]]))
                 deck.deck = deck.deck[hand_dict[i]:]
-
+        placement = sum([i is not None for i in won_dict]) + 1
         first_turn = True
         while not game_over(won_dict):
             gamestate = GameState(hand_list[curr_turn], last_play, pass_dict, hand_dict, played_cards, won_dict, curr_turn, log)
             if not first_turn:
                 action = player_list[curr_turn].action(gamestate)
             else:
+                action = self.action_list(gamestate)[action_index]
                 first_turn = False
             if action == "PASS":
                 pass_dict[curr_turn] = True
