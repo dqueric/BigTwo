@@ -7,11 +7,6 @@ class Player:
     def action_list(self, gamestate):
         hand = gamestate.hand
         last_play = gamestate.last_play
-        pass_dict = gamestate.pass_dict
-        hand_dict = gamestate.hand_dict
-        won_dict = gamestate.won_dict
-        curr_turn = gamestate.curr_turn
-        played_cards = gamestate.played_cards
         if len(gamestate.played_cards) == 0:
             possible_actions = []
             for i in hand.plays:
@@ -21,12 +16,13 @@ class Player:
                             possible_actions.append(play)
                             break
         else:
-            possible_actions = ["PASS"]
             if last_play == None:
+                possible_actions = []
                 for i in hand.plays:
                     for play in hand.plays[i]:
                         possible_actions.append(play)
             else:
+                possible_actions = ["PASS"]
                 for play in hand.plays[len(last_play[1])]:
                     if play[0] > last_play[0]:
                         possible_actions.append(play)

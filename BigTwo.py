@@ -27,7 +27,7 @@ class Game:
                     pass_count += 1
                 else:
                     in_player = i
-        return(total_count - pass_count == 1, in_player)
+        return((total_count - pass_count == 1 and self.last_player == in_player) or (total_count == pass_count and self.won_dict[self.last_player] is not None))
 
     def play_game(self):
         deck = Deck()
@@ -47,14 +47,15 @@ class Game:
         self.won_dict = [None, None, None, None]
         self.played_cards = []
         self.last_play = None
-
-        while not self.game_over():
-            gamestate = GameState(self.hand_list[self.curr_turn], self.last_play, self.pass_dict, self.hand_dict, self.played_cards, self.won_dict, self.curr_turn, self.log)
+        self.last_player = None
+        while True:
+            gamestate = GameState(self.hand_list[self.curr_turn], self.last_play, self.last_player, self.pass_dict, self.hand_dict, self.played_cards, self.won_dict, self.curr_turn, self.log)
             action = self.player_list[self.curr_turn].action(gamestate)
             if action == "PASS":
                 self.pass_dict[self.curr_turn] = True
                 self.log += "PLAYER " + str(self.curr_turn) + ": " + "Passed\n"
             else:
+                self.last_player = self.curr_turn
                 self.log += "PLAYER " + str(self.curr_turn) + ": " + str((action[0], [i.rank + i.suit for i in action[1]])) + "\n"
                 self.last_play = action
                 self.hand_dict[self.curr_turn] -= len(action[1])
@@ -71,21 +72,25 @@ class Game:
                                 self.won_dict[i] = 4
                                 self.log += "PLAYER " + str(i) + " Placement: " + str(self.placement) + "\n"
                                 break
-            for i in range(0, 4):
-                self.curr_turn = (self.curr_turn + 1) % 4
-                reset_check = self.pass_reset_check()
-                if reset_check[0]:
-                    self.pass_dict = [False, False, False, False]
-                    self.last_play = None
-                    self.log += "RESET\n"
-                    self.curr_turn = reset_check[1]
+                if self.game_over():
                     break
-                if (self.won_dict[self.curr_turn] is None and self.pass_dict[self.curr_turn] is False):
-                    break
-        # print(self.log)
+            reset_check = self.pass_reset_check()
+            if reset_check:
+                self.pass_dict = [False, False, False, False]
+                self.last_play = None
+                self.log += "RESET\n"
+                self.curr_turn = self.last_player
+                while self.won_dict[self.curr_turn] is not None:
+                    self.curr_turn = (self.curr_turn + 1) % 4
+                self.last_player = None
+            else:
+                for i in range(0, 3):
+                    self.curr_turn = (self.curr_turn + 1) % 4
+                    if (self.won_dict[self.curr_turn] is None and self.pass_dict[self.curr_turn] is False):
+                        break
         return(self.won_dict)
 
 if __name__ == '__main__':
-    player_list = [HumanPlayer()] + [MontePlayer() for i in range(3)]
+    player_list = [MontePlayer()] + [RandomPlayer() for i in range(3)]
     game = Game(player_list)
     game.play_game()

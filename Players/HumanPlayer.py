@@ -17,7 +17,7 @@ class HumanPlayer(Player):
         print("Passed: " + str(filter_pass_dict))
         print("Hand: " + str([card.rank + card.suit for card in gamestate.hand.hand]))
 
-        if gamestate.played_cards != []:
+        if gamestate.last_play is not None:
             print("Action 0", "PASS")
             for i in range(1, len(possible_actions)):
                 print("Action " + str(i), [card.rank + card.suit for card in possible_actions[i][1]])
