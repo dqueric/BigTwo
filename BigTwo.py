@@ -91,6 +91,6 @@ class Game:
         return(self.won_dict)
 
 if __name__ == '__main__':
-    player_list = [MontePlayer()] + [RandomPlayer() for i in range(3)]
+    player_list = [HumanPlayer()] + [MontePlayer() for i in range(3)]
     game = Game(player_list)
     game.play_game()
