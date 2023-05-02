@@ -5,7 +5,7 @@ import numpy as np
 from Deck import Deck
 from Hand import Hand
 from Card import Card
-
+ 
 def game_over(won_dict):
     return(sum([i is not None for i in won_dict]) == 4)
 
@@ -23,15 +23,15 @@ def pass_reset_check(pass_dict, won_dict, last_player):
     return((total_count - pass_count == 1 and last_player == in_player) or (total_count == pass_count and won_dict[last_player] is not None))
 
 class MontePlayer(Player):
-    def __init__(self):
-        pass
+    def __init__(self, n_sims=100):
+        self.n_sims = n_sims
 
     def action(self, gamestate):
         possible_actions = self.action_list(gamestate)
         action_score = []
         for action_index in range(len(possible_actions)):
             action_score.append(0)
-            for sample in range(100):
+            for sample in range(self.n_sims):
                 action_score[-1] += self.simulate(gamestate, action_index)
         return(possible_actions[np.argmin(action_score)])
 
