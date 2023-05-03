@@ -23,19 +23,26 @@ def pass_reset_check(pass_dict, won_dict, last_player):
     return((total_count - pass_count == 1 and last_player == in_player) or (total_count == pass_count and won_dict[last_player] is not None))
 
 class MontePlayer(Player):
-    def __init__(self, n_sims=100):
+    def __init__(self, deck, n_sims=100):
+        super().__init__(deck)
         self.n_sims = n_sims
 
     def action(self, gamestate):
         possible_actions = self.action_list(gamestate)
+        sub_deck = []
+
+        for card in gamestate.hand.deck.deck:
+            if card not in gamestate.hand.hand:
+                sub_deck.append(card)
+
         action_score = []
         for action_index in range(len(possible_actions)):
             action_score.append(0)
             for sample in range(self.n_sims):
-                action_score[-1] += self.simulate(gamestate, action_index)
+                action_score[-1] += self.simulate(gamestate, sub_deck.copy(), action_index)
         return(possible_actions[np.argmin(action_score)])
 
-    def simulate(self, gamestate, action_index):
+    def simulate(self, gamestate, sub_deck, action_index):
         orig_player = gamestate.curr_turn
         last_play = gamestate.last_play
         pass_dict = gamestate.pass_dict.copy()
@@ -44,21 +51,18 @@ class MontePlayer(Player):
         won_dict = gamestate.won_dict.copy()
         last_player = gamestate.last_player
         curr_turn = gamestate.curr_turn
-        player_list = [RandomPlayer() for i in range(4)]
+        player_list = [RandomPlayer(gamestate.hand.deck) for i in range(4)]
         log = gamestate.log
         # randomly generate handlist
         hand = gamestate.hand
-        deck = Deck()
-        deck.remove(hand.hand + played_cards)
-        deck.shuffle()
         hand_list = []
         for i in range(len(hand_dict)):
             if i == curr_turn:
-                hand = Hand([Card(card.suit, card.rank) for card in gamestate.hand.hand])
+                hand = Hand(gamestate.hand.hand, gamestate.hand.deck)
                 hand_list.append(hand)
             else:
-                hand_list.append(Hand(deck.deck[:hand_dict[i]]))
-                deck.deck = deck.deck[hand_dict[i]:]
+                hand_list.append(Hand(sub_deck[:hand_dict[i]], gamestate.hand.deck))
+                sub_deck = sub_deck[hand_dict[i]:]
         placement = sum([i is not None for i in won_dict]) + 1
         first_turn = True
         while True:

@@ -11,7 +11,10 @@ from GameState import GameState
 
 class Game:
     def __init__(self, player_list):
-        self.player_list = player_list
+        self.deck = Deck()
+        self.player_list = []
+        for player in player_list:
+            self.player_list.append(player(self.deck))
 
     def game_over(self):
         return(sum([i is not None for i in self.won_dict]) == 4)
@@ -30,13 +33,12 @@ class Game:
         return((total_count - pass_count == 1 and self.last_player == in_player) or (total_count == pass_count and self.won_dict[self.last_player] is not None))
 
     def play_game(self):
-        deck = Deck()
-        deck.shuffle()
+        self.deck.shuffle()
         self.played_cards = []
         self.hand_list = []
         self.log = ""
         for i in range(len(self.player_list)):
-            self.hand_list.append(Hand(deck.deck[i*13:(i+1)*13]))
+            self.hand_list.append(Hand(self.deck.deck[i*13:(i+1)*13], self.deck))
         for i in range(len(self.hand_list)):
             if self.hand_list[i].hand[0].card_value == 12:
                 self.curr_turn = i
@@ -91,6 +93,6 @@ class Game:
         return(self.won_dict)
 
 if __name__ == '__main__':
-    player_list = [HumanPlayer()] + [MontePlayer() for i in range(3)]
+    player_list = [MontePlayer] + [RandomPlayer for i in range(3)]
     game = Game(player_list)
     game.play_game()

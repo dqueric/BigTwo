@@ -1,9 +1,6 @@
 from Players.Player import Player
 
 class HumanPlayer(Player):
-    def __init__(self):
-        self.log = ""
-
     def action(self, gamestate):
         possible_actions = self.action_list(gamestate)
         print(gamestate.log[len(self.log):])

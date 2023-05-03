@@ -1,8 +1,9 @@
 from GameState import GameState
 
 class Player:
-    def __init__(self):
-        pass
+    def __init__(self, deck):
+        self.deck = deck
+        self.log = ""
 
     def action_list(self, gamestate):
         hand = gamestate.hand
@@ -11,10 +12,8 @@ class Player:
             possible_actions = []
             for i in hand.plays:
                 for play in hand.plays[i]:
-                    for card in play[1]:
-                        if card.rank + card.suit == "3D":
-                            possible_actions.append(play)
-                            break
+                    if hand.deck.start_card in play[1]:
+                        possible_actions.append(play)
         else:
             if last_play == None:
                 possible_actions = []
